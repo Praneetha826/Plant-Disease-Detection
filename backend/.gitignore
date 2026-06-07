@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+app/ml/weights/*
+!app/ml/weights/.gitkeep

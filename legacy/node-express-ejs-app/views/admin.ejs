@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <script src="js/bootstrap.bundle.min.js"></script>
+
+  <link rel="icon" type="image/jpg" href="images/Life.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- bootstrap -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+
+  <link rel="stylesheet" href="newstyle.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="admin-dashboard">
+      <h1>Welcome, Admin!</h1>
+      <div class="overview-section">
+        <h2>Overview</h2>
+        <p id="total-users">Total Users: <%= totalusers %>
+        </p>
+        <p id="total-uploads">Total Uploads: <%= totaluploads %>
+        </p>
+      </div>
+      <div class="user-section">
+        <h2>Manage Users</h2>
+        <table id="users-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="upload-section">
+        <h2>Manage Uploads</h2>
+        <table id="uploads-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Image Path</th>
+              <th>Disease Label</th>
+              <th>Confidence</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script>
+    async function fetchDashboardData() {
+      try {
+        // Fetch Users
+        const usersRes = await fetch("/admin/users");
+        const users = await usersRes.json();
+        const usersTable = document.querySelector("#users-table tbody");
+        users.data.forEach((user) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+        <td>${user.username}</td>
+        <td>${user.email}</td>
+        <td>${user.role}</td>
+        <td><button onclick="promoteUser('${user._id}')">Promote</button></td>
+      `;
+          usersTable.appendChild(row);
+        });
+
+        // Fetch Uploads
+        const uploadsRes = await fetch("/admin/uploads");
+        const uploads = await uploadsRes.json();
+        const uploadsTable = document.querySelector("#uploads-table tbody");
+        uploads.data.forEach((upload) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+        <td>${upload.userId?.username || "N/A"}</td>
+        <td>${upload.imagePath}</td>
+        <td>${upload.diseaseLabel}</td>
+        <td>${upload.confidence}</td>
+        <td><button onclick="deleteUpload('${upload._id}')">Delete</button></td>
+      `;
+          uploadsTable.appendChild(row);
+        });
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    }
+
+    async function promoteUser(userId) {
+      try {
+        await fetch(`/admin/users/${userId}/role`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: "admin" }),
+        });
+        alert("User promoted successfully");
+        location.reload();
+      } catch (error) {
+        console.error("Error promoting user:", error);
+      }
+    }
+
+    async function deleteUpload(uploadId) {
+      try {
+        await fetch(`/admin/uploads/${uploadId}`, { method: "DELETE" });
+        alert("Upload deleted successfully");
+        location.reload();
+      } catch (error) {
+        console.error("Error deleting upload:", error);
+      }
+    }
+
+    // Load data on page load
+    fetchDashboardData();
+
+  </script>
+</body>
+
+</html>

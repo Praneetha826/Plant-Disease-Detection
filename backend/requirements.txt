@@ -1,0 +1,10 @@
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-multipart==0.0.19
+pydantic-settings==2.7.0
+slowapi==0.1.9
+pillow==11.0.0
+numpy==2.2.0
+httpx==0.28.1
+google-auth==2.37.0
+pytest==8.3.4
